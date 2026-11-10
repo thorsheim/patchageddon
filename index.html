@@ -80,9 +80,9 @@ body {
 .tb-btn:active { box-shadow: var(--pressed); }
 .tb-btn + .tb-btn.x { margin-left: 2px; }
 .menubar { display: flex; gap: 2px; padding: 2px 0 3px; }
-.menubar span { padding: 2px 6px; }
-.menubar span u { text-decoration: underline; }
-.menubar span:hover { background: var(--select); color: #fff; }
+.menubar button { padding: 2px 6px; border: 0; background: none; font: 12px var(--ui); color: var(--ink); cursor: default; }
+.menubar button u { text-decoration: underline; }
+.menubar button:hover, .menubar button:focus-visible, .menubar button.open { background: var(--select); color: #fff; outline: none; }
 .body { padding: 8px 6px 6px; display: grid; gap: 10px; }
 .statusbar { display: flex; gap: 2px; margin-top: 2px; }
 .statusbar > div { box-shadow: var(--pressed); padding: 3px 6px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -176,7 +176,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
   .facts { grid-template-columns: minmax(0, 1fr); }
   .facts dt { margin-top: 4px; }
   .hide-narrow { display: none; }
-  .menubar span:nth-child(n+3) { display: none; }
+  .menubar .view { display: none; }
 }
 </style>
 
@@ -188,7 +188,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
       <span class="ttl" id="t-count">Patch Tuesday Countdown</span>
       <span class="tb-btns" aria-hidden="true"><span class="tb-btn">_</span><span class="tb-btn">□</span><span class="tb-btn x">×</span></span>
     </div>
-    <div class="menubar" aria-hidden="true"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+    <div class="menubar" role="menubar"><button type="button" data-menu="file"><u>F</u>ile</button><button type="button" data-menu="edit"><u>E</u>dit</button><button type="button" class="view" tabindex="-1" aria-hidden="true"><u>V</u>iew</button><button type="button" data-menu="help"><u>H</u>elp</button></div>
     <div class="body">
       <div class="today-banner" id="today-banner" role="status">
         <span class="i-info" aria-hidden="true" style="width:22px;height:22px;font-size:15px;line-height:22px">i</span>
@@ -235,7 +235,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
       <span class="ttl" id="t-list">Upcoming Patch Tuesdays</span>
       <span class="tb-btns" aria-hidden="true"><span class="tb-btn">_</span><span class="tb-btn">□</span><span class="tb-btn x">×</span></span>
     </div>
-    <div class="menubar" aria-hidden="true"><span><u>F</u>ile</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+    <div class="menubar" role="menubar"><button type="button" data-menu="file"><u>F</u>ile</button><button type="button" class="view" tabindex="-1" aria-hidden="true"><u>V</u>iew</button><button type="button" data-menu="help"><u>H</u>elp</button></div>
     <div class="body">
       <div class="listview">
         <table>
@@ -351,12 +351,22 @@ tbody tr.next td .dim { color: #c8c8ff; }
     return [+p.year, +p.month - 1, +p.day];
   }
 
-  function showDialog(html) {
+  function showDialog(html, title) {
+    $('dlg-title').textContent = title || 'Patch Tuesday';
     const t = $('dlg-text'); t.textContent = '';
     html.forEach((line, i) => { if (i) t.appendChild(document.createElement('br')); t.appendChild(document.createTextNode(line)); });
     $('dialog').hidden = false; $('dlg-ok').focus();
   }
-  const hideDialog = () => { $('dialog').hidden = true; };
+  const hideDialog = () => { $('dialog').hidden = true; document.querySelectorAll('.menubar .open').forEach(b => b.classList.remove('open')); };
+  const MENU = {
+    file: ['File', 'Sorry, you can\'t save yourself from this!'],
+    edit: ['Edit', 'Only magicians can edit time, sorry.'],
+    help: ['Help', 'You want help with installing Linux? Or buy a Mac? Or just disconnect?']
+  };
+  document.querySelectorAll('.menubar [data-menu]').forEach(b => b.addEventListener('click', () => {
+    const [title, msg] = MENU[b.dataset.menu];
+    b.classList.add('open'); showDialog([msg], title);
+  }));
   $('dlg-ok').addEventListener('click', hideDialog);
   $('dlg-x').addEventListener('click', hideDialog);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { hideDialog(); toggleStart(false); } });
