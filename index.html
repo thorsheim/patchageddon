@@ -104,6 +104,14 @@ legend { padding: 0 3px; position: absolute; top: -7px; left: 8px; background: v
 .unit { display: grid; justify-items: center; gap: 2px; padding: 8px 2px 6px; background: var(--hilite); box-shadow: var(--sunken); }
 .num { font: bold clamp(30px, 8vw, 54px)/1 var(--ui); font-variant-numeric: tabular-nums; letter-spacing: -1px; }
 .lbl { font-size: 11px; color: #404040; }
+/* View: the countdown at double size for 5 seconds, two by two so it still fits the window */
+.count.zoom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.count.zoom .num { font-size: clamp(60px, 16vw, 108px); letter-spacing: -2px; }
+.count.zoom .lbl { font-size: 22px; }
+.count.zoom .unit { padding: 14px 4px 12px; }
+@media (prefers-reduced-motion: no-preference) {
+  .num, .lbl { transition: font-size .2s steps(4); }
+}
 .progress { height: 20px; padding: 3px; box-shadow: var(--sunken); background: var(--face); }
 .progress .fill { height: 100%; background: repeating-linear-gradient(90deg, var(--select) 0 9px, transparent 9px 11px); width: 0; }
 .progress-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; color: #404040; flex-wrap: wrap; }
@@ -176,7 +184,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
   .facts { grid-template-columns: minmax(0, 1fr); }
   .facts dt { margin-top: 4px; }
   .hide-narrow { display: none; }
-  .menubar .view { display: none; }
+
 }
 </style>
 
@@ -188,7 +196,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
       <span class="ttl" id="t-count">Patch Tuesday Countdown</span>
       <span class="tb-btns" aria-hidden="true"><span class="tb-btn">_</span><span class="tb-btn">□</span><span class="tb-btn x">×</span></span>
     </div>
-    <div class="menubar" role="menubar"><button type="button" data-menu="file"><u>F</u>ile</button><button type="button" data-menu="edit"><u>E</u>dit</button><button type="button" class="view" tabindex="-1" aria-hidden="true"><u>V</u>iew</button><button type="button" data-menu="help"><u>H</u>elp</button></div>
+    <div class="menubar" role="menubar"><button type="button" data-menu="file"><u>F</u>ile</button><button type="button" data-menu="edit"><u>E</u>dit</button><button type="button" class="view" data-view><u>V</u>iew</button><button type="button" data-menu="help"><u>H</u>elp</button></div>
     <div class="body">
       <div class="today-banner" id="today-banner" role="status">
         <span class="i-info" aria-hidden="true" style="width:22px;height:22px;font-size:15px;line-height:22px">i</span>
@@ -235,7 +243,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
       <span class="ttl" id="t-list">Upcoming Patch Tuesdays</span>
       <span class="tb-btns" aria-hidden="true"><span class="tb-btn">_</span><span class="tb-btn">□</span><span class="tb-btn x">×</span></span>
     </div>
-    <div class="menubar" role="menubar"><button type="button" data-menu="file"><u>F</u>ile</button><button type="button" class="view" tabindex="-1" aria-hidden="true"><u>V</u>iew</button><button type="button" data-menu="help"><u>H</u>elp</button></div>
+    <div class="menubar" role="menubar"><button type="button" data-menu="file"><u>F</u>ile</button><button type="button" class="view" data-view><u>V</u>iew</button><button type="button" data-menu="help"><u>H</u>elp</button></div>
     <div class="body">
       <div class="listview">
         <table>
@@ -363,6 +371,16 @@ tbody tr.next td .dim { color: #c8c8ff; }
     edit: ['Edit', 'Only magicians can edit time, sorry.'],
     help: ['Help', 'You want help with installing Linux? Or buy a Mac? Or just disconnect?']
   };
+  let zoomTimer = null;
+  document.querySelectorAll('.menubar [data-view]').forEach(b => b.addEventListener('click', () => {
+    const c = $('count');
+    document.querySelectorAll('.menubar [data-view]').forEach(v => v.classList.add('open'));
+    c.classList.add('zoom');
+    setTimeout(() => { $('w-count').classList.remove('inactive'); $('w-list').classList.add('inactive'); }, 0);
+    $('w-count').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    clearTimeout(zoomTimer);
+    zoomTimer = setTimeout(() => { c.classList.remove('zoom'); document.querySelectorAll('.menubar [data-view]').forEach(v => v.classList.remove('open')); }, 5000);
+  }));
   document.querySelectorAll('.menubar [data-menu]').forEach(b => b.addEventListener('click', () => {
     const [title, msg] = MENU[b.dataset.menu];
     b.classList.add('open'); showDialog([msg], title);
