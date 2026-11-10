@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Patch Tuesday Countdown</title>
+<meta name="description" content="Countdown to Microsoft's monthly security updates: 19:00 Norwegian time on the second Tuesday of every month, with the next 12 Patch Tuesdays.">
+<meta property="og:title" content="Patch Tuesday Countdown">
+<meta property="og:description" content="Countdown to 19:00 Norwegian time on the second Tuesday of every month, when Microsoft releases its monthly security updates.">
+<meta property="og:url" content="https://patchageddon.thorsheim.net/">
+<link rel="canonical" href="https://patchageddon.thorsheim.net/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23008080'/%3E%3Ccircle cx='8' cy='8' r='6' fill='%23fff' stroke='%23000'/%3E%3Cpath d='M8 4v4h3' stroke='%23000' stroke-width='1.5' fill='none'/%3E%3C/svg%3E">
+<style>
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+img { max-width: 100%; }
+</style>
+</head>
+<body>
+<style>
+/* Layout: a teal desktop with two bevelled windows (countdown + upcoming list) and a taskbar, in the grey 3D style of a mid-90s PC desktop. Single deliberate look, no dark variant. */
+:root {
+  --desktop: #008080;
+  --face: #c0c0c0;
+  --hilite: #ffffff;
+  --light: #dfdfdf;
+  --shadow: #808080;
+  --dark: #0a0a0a;
+  --title: #000080;
+  --title-off: #808080;
+  --ink: #000000;
+  --select: #000080;
+  --tip: #ffffe1;
+  --ui: Tahoma, "Microsoft Sans Serif", "MS Sans Serif", "Segoe UI", Geneva, Verdana, sans-serif;
+  --mono: "Courier New", Courier, monospace;
+  --raised: inset -1px -1px var(--dark), inset 1px 1px var(--hilite), inset -2px -2px var(--shadow), inset 2px 2px var(--light);
+  --sunken: inset -1px -1px var(--hilite), inset 1px 1px var(--shadow), inset -2px -2px var(--light), inset 2px 2px var(--dark);
+  --pressed: inset -1px -1px var(--hilite), inset 1px 1px var(--dark), inset -2px -2px var(--light), inset 2px 2px var(--shadow);
+  color-scheme: light;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  background: var(--desktop);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 12px;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+.desktop {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding-block: 20px calc(52px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(0, 470px);
+  justify-content: center;
+  align-items: start;
+  gap: 20px;
+}
+@media (max-width: 1100px) { .desktop { grid-template-columns: minmax(0, 600px); } }
+
+/* ---------- window chrome ---------- */
+.win { background: var(--face); box-shadow: var(--raised); padding: 3px; min-width: 0; }
+.titlebar {
+  background: var(--title); color: #fff; font-weight: bold;
+  display: flex; align-items: center; gap: 6px; padding: 3px 3px 3px 4px; height: 18px;
+}
+.win.inactive .titlebar { background: var(--title-off); color: var(--face); }
+.titlebar .ttl { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.titlebar .ico { width: 16px; height: 16px; flex: none; }
+.tb-btns { display: flex; gap: 2px; }
+.tb-btn {
+  width: 16px; height: 14px; padding: 0; border: 0; background: var(--face); box-shadow: var(--raised);
+  font: bold 9px/1 var(--ui); color: var(--ink); display: grid; place-items: center; cursor: default;
+}
+.tb-btn:active { box-shadow: var(--pressed); }
+.tb-btn + .tb-btn.x { margin-left: 2px; }
+.menubar { display: flex; gap: 2px; padding: 2px 0 3px; }
+.menubar span { padding: 2px 6px; }
+.menubar span u { text-decoration: underline; }
+.menubar span:hover { background: var(--select); color: #fff; }
+.body { padding: 8px 6px 6px; display: grid; gap: 10px; }
+.statusbar { display: flex; gap: 2px; margin-top: 2px; }
+.statusbar > div { box-shadow: var(--pressed); padding: 3px 6px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.statusbar > div:first-child { flex: 1; }
+
+/* ---------- controls ---------- */
+fieldset { border: 0; margin: 0; padding: 14px 10px 10px; box-shadow: inset -1px -1px var(--hilite), inset 1px 1px var(--shadow), inset -2px -2px var(--shadow), inset 2px 2px var(--hilite); position: relative; min-width: 0; }
+legend { padding: 0 3px; position: absolute; top: -7px; left: 8px; background: var(--face); }
+.btn {
+  font: 12px var(--ui); color: var(--ink); background: var(--face); border: 0; box-shadow: var(--raised);
+  min-width: 75px; padding: 5px 12px; cursor: default;
+}
+.btn:active { box-shadow: var(--pressed); padding: 6px 11px 4px 13px; }
+.btn:focus-visible { outline: 1px dotted var(--ink); outline-offset: -5px; }
+.sunk { background: var(--hilite); box-shadow: var(--sunken); }
+
+/* ---------- countdown ---------- */
+.count { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 10px; }
+.unit { display: grid; justify-items: center; gap: 2px; padding: 8px 2px 6px; background: var(--hilite); box-shadow: var(--sunken); }
+.num { font: bold clamp(30px, 8vw, 54px)/1 var(--ui); font-variant-numeric: tabular-nums; letter-spacing: -1px; }
+.lbl { font-size: 11px; color: #404040; }
+.progress { height: 20px; padding: 3px; box-shadow: var(--sunken); background: var(--face); }
+.progress .fill { height: 100%; background: repeating-linear-gradient(90deg, var(--select) 0 9px, transparent 9px 11px); width: 0; }
+.progress-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; color: #404040; flex-wrap: wrap; }
+
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 12px; margin: 0; }
+.facts dt { color: #404040; }
+.facts dd { margin: 0; font-weight: bold; overflow-wrap: anywhere; }
+.facts dd.plain { font-weight: normal; }
+.today-banner { display: none; gap: 8px; align-items: center; padding: 6px 8px; background: var(--tip); box-shadow: var(--sunken); }
+.today-banner.on { display: flex; }
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+/* ---------- list view ---------- */
+.listview { background: var(--hilite); box-shadow: var(--sunken); padding: 2px; overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th { background: var(--face); box-shadow: var(--raised); font-weight: normal; text-align: left; padding: 3px 6px; white-space: nowrap; }
+td { padding: 3px 6px; white-space: nowrap; }
+td.r, th.r { text-align: right; }
+tbody tr.next td { background: var(--select); color: #fff; }
+tbody tr.next td .dim { color: #c8c8ff; }
+.dim { color: #606060; }
+.note { margin: 0; color: #404040; line-height: 1.45; max-width: 62ch; }
+.note a { color: var(--select); }
+
+/* ---------- icons (drawn with CSS) ---------- */
+.i-clock { width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1px #000; position: relative; display: inline-block; }
+.i-clock::before, .i-clock::after { content: ""; position: absolute; left: 7px; background: #000; width: 2px; }
+.i-clock::before { top: 3px; height: 5px; }
+.i-clock::after { top: 7px; height: 2px; width: 4px; }
+.i-cal { width: 16px; height: 16px; background: #fff; box-shadow: inset 0 0 0 1px #000; position: relative; display: inline-block; }
+.i-cal::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: #c00000; box-shadow: inset 0 0 0 1px #000; }
+.i-cal::after { content: ""; position: absolute; left: 3px; top: 6px; width: 3px; height: 3px; background: #000; box-shadow: 4px 0 #000, 8px 0 #000, 0 4px #000, 4px 4px #000; }
+.i-info { width: 32px; height: 32px; flex: none; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px #000080, 2px 2px 0 #808080; color: #000080; font: bold 22px/32px Georgia, "Times New Roman", serif; text-align: center; }
+
+/* ---------- taskbar ---------- */
+.taskbar {
+  position: fixed; inset: auto 0 0 0; z-index: 20;
+  background: var(--face); box-shadow: inset 0 1px var(--light), inset 0 2px var(--hilite);
+  display: flex; align-items: center; gap: 4px;
+  padding-block: 4px calc(4px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(4px, env(safe-area-inset-left, 0px));
+  padding-right: max(4px, env(safe-area-inset-right, 0px));
+}
+.start { display: flex; align-items: center; gap: 4px; font-weight: bold; min-width: 0; padding: 3px 6px; }
+.start[aria-expanded="true"] { box-shadow: var(--pressed); }
+.task { flex: 1 1 auto; min-width: 0; max-width: 220px; display: flex; align-items: center; gap: 5px; padding: 3px 6px; box-shadow: var(--pressed); background: repeating-conic-gradient(var(--face) 0 25%, var(--hilite) 0 50%) 0 0 / 2px 2px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.task span { overflow: hidden; text-overflow: ellipsis; }
+.tray { margin-left: auto; box-shadow: var(--pressed); padding: 4px 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.startmenu {
+  position: fixed; left: max(4px, env(safe-area-inset-left, 0px)); bottom: calc(34px + env(safe-area-inset-bottom, 0px)); z-index: 30;
+  background: var(--face); box-shadow: var(--raised); padding: 3px; display: flex; min-width: 230px;
+}
+.startmenu .side { width: 22px; background: linear-gradient(#000080, #1084d0); color: var(--face); writing-mode: vertical-rl; transform: rotate(180deg); font: bold 15px var(--ui); padding: 6px 2px; letter-spacing: 1px; }
+.startmenu ul { list-style: none; margin: 0; padding: 0; flex: 1; }
+.startmenu li > * { display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; padding: 7px 10px; font: 12px var(--ui); color: var(--ink); text-decoration: none; background: none; border: 0; text-align: left; cursor: default; }
+.startmenu li > *:hover, .startmenu li > *:focus-visible { background: var(--select); color: #fff; outline: none; }
+.startmenu hr { border: 0; height: 2px; box-shadow: inset 0 1px var(--shadow), inset 0 -1px var(--hilite); margin: 3px 2px; }
+
+/* ---------- dialog ---------- */
+.overlay { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.dialog { width: min(380px, 100%); }
+.dialog .msg { display: flex; gap: 14px; align-items: flex-start; padding: 14px 10px 6px; line-height: 1.45; }
+.dialog .btn-row { justify-content: center; padding-bottom: 6px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .flash .num { animation: blink .5s steps(1) 6; }
+  @keyframes blink { 50% { color: var(--select); } }
+}
+@media (max-width: 420px) {
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .facts dt { margin-top: 4px; }
+  .hide-narrow { display: none; }
+  .menubar span:nth-child(n+3) { display: none; }
+}
+</style>
+
+<div class="desktop">
+  <!-- ======== countdown window ======== -->
+  <section class="win" id="w-count" aria-labelledby="t-count">
+    <div class="titlebar">
+      <span class="i-clock ico" aria-hidden="true"></span>
+      <span class="ttl" id="t-count">Patch Tuesday Countdown</span>
+      <span class="tb-btns" aria-hidden="true"><span class="tb-btn">_</span><span class="tb-btn">□</span><span class="tb-btn x">×</span></span>
+    </div>
+    <div class="menubar" aria-hidden="true"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+    <div class="body">
+      <div class="today-banner" id="today-banner" role="status">
+        <span class="i-info" aria-hidden="true" style="width:22px;height:22px;font-size:15px;line-height:22px">i</span>
+        <span id="today-text">Today is Patch Tuesday.</span>
+      </div>
+
+      <fieldset>
+        <legend>Time left until the next release</legend>
+        <div class="count" id="count" aria-live="off">
+          <div class="unit"><span class="num" id="d">--</span><span class="lbl">days</span></div>
+          <div class="unit"><span class="num" id="h">--</span><span class="lbl">hours</span></div>
+          <div class="unit"><span class="num" id="m">--</span><span class="lbl">minutes</span></div>
+          <div class="unit"><span class="num" id="s">--</span><span class="lbl">seconds</span></div>
+        </div>
+        <div class="progress" role="progressbar" aria-label="Time passed since the last Patch Tuesday" aria-valuemin="0" aria-valuemax="100" id="prog"><div class="fill" id="prog-fill"></div></div>
+        <div class="progress-meta"><span id="prog-from">Last release: –</span><span id="prog-pct">–</span></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Next Patch Tuesday</legend>
+        <dl class="facts">
+          <dt>Date</dt><dd id="f-date">–</dd>
+          <dt>Norwegian time</dt><dd id="f-oslo">–</dd>
+          <dt>UTC</dt><dd class="plain" id="f-utc">–</dd>
+          <dt>Your time</dt><dd class="plain" id="f-local">–</dd>
+          <dt>Week</dt><dd class="plain" id="f-week">–</dd>
+        </dl>
+      </fieldset>
+
+      <p class="note">Microsoft publishes its monthly security updates on the second Tuesday of every month. This page counts down to 19:00 Norwegian time on that day and switches to the following month the moment the clock reaches zero. Details appear in the <a href="https://msrc.microsoft.com/update-guide" target="_blank" rel="noopener">Security Update Guide</a>.</p>
+
+      <div class="btn-row">
+        <button class="btn" id="copy-btn" type="button"><u>C</u>opy date</button>
+        <button class="btn" id="about-btn" type="button"><u>A</u>bout…</button>
+      </div>
+    </div>
+    <div class="statusbar"><div id="status">Calculating…</div><div class="hide-narrow" id="status-tz">Europe/Oslo</div></div>
+  </section>
+
+  <!-- ======== upcoming list window ======== -->
+  <section class="win inactive" id="w-list" aria-labelledby="t-list">
+    <div class="titlebar">
+      <span class="i-cal ico" aria-hidden="true"></span>
+      <span class="ttl" id="t-list">Upcoming Patch Tuesdays</span>
+      <span class="tb-btns" aria-hidden="true"><span class="tb-btn">_</span><span class="tb-btn">□</span><span class="tb-btn x">×</span></span>
+    </div>
+    <div class="menubar" aria-hidden="true"><span><u>F</u>ile</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+    <div class="body">
+      <div class="listview">
+        <table>
+          <thead><tr><th class="r">#</th><th>Date</th><th>Norway</th><th class="r">Week</th><th class="r">Days</th></tr></thead>
+          <tbody id="list"></tbody>
+        </table>
+      </div>
+      <p class="note">All releases at 19:00 Norwegian time. CET is winter time (UTC+1), CEST summer time (UTC+2). The list moves on by itself after each release.</p>
+    </div>
+    <div class="statusbar"><div id="list-status">12 object(s)</div><div class="hide-narrow" id="list-range">–</div></div>
+  </section>
+</div>
+
+<!-- ======== start menu ======== -->
+<div class="startmenu" id="startmenu" hidden>
+  <div class="side" aria-hidden="true">Patch&nbsp;Tuesday</div>
+  <ul>
+    <li><a href="https://msrc.microsoft.com/update-guide" target="_blank" rel="noopener"><span class="i-cal" aria-hidden="true"></span>Security Update Guide</a></li>
+    <li><button type="button" id="sm-copy"><span class="i-clock" aria-hidden="true"></span>Copy next date</button></li>
+    <li><hr></li>
+    <li><button type="button" id="sm-about"><span class="i-info" aria-hidden="true" style="width:16px;height:16px;font-size:11px;line-height:16px;box-shadow:inset 0 0 0 1px #000080">i</span>About Patch Tuesday</button></li>
+  </ul>
+</div>
+
+<!-- ======== taskbar ======== -->
+<nav class="taskbar" aria-label="Taskbar">
+  <button class="btn start" id="start" type="button" aria-expanded="false" aria-controls="startmenu"><span class="i-clock" aria-hidden="true"></span>Start</button>
+  <div class="task" title="Patch Tuesday Countdown"><span class="i-clock" aria-hidden="true"></span><span id="task-text">Patch Tuesday</span></div>
+  <div class="tray" id="tray" title="Norwegian time">--:--</div>
+</nav>
+
+<!-- ======== dialog ======== -->
+<div class="overlay" id="dialog" hidden>
+  <div class="win dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+    <div class="titlebar"><span class="ttl" id="dlg-title">Patch Tuesday</span><span class="tb-btns"><button class="tb-btn x" type="button" id="dlg-x" aria-label="Close">×</button></span></div>
+    <div class="msg"><span class="i-info" aria-hidden="true">i</span><div id="dlg-text"></div></div>
+    <div class="btn-row"><button class="btn" type="button" id="dlg-ok">OK</button></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const TZ = 'Europe/Oslo', HOUR = 19, COUNT = 12;
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, '0');
+
+  // Offset of a time zone from UTC, in minutes, at a given instant.
+  function tzOffset(tz, date) {
+    const p = {};
+    new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      .formatToParts(date).forEach(x => { p[x.type] = x.value; });
+    return (Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second) - date.getTime()) / 60000;
+  }
+  // A wall-clock time in a time zone, as a real instant.
+  function zoned(y, m, d, h, tz) {
+    const wall = Date.UTC(y, m, d, h);
+    let t = wall - tzOffset(tz, new Date(wall)) * 60000;
+    t = wall - tzOffset(tz, new Date(t)) * 60000;
+    return new Date(t);
+  }
+  const secondTuesday = (y, m) => { const dow = new Date(Date.UTC(y, m, 1)).getUTCDay(); return 1 + ((2 - dow + 7) % 7) + 7; };
+  function release(y, m) { const d = secondTuesday(y, m); return { y, m, d, at: zoned(y, m, d, HOUR, TZ) }; }
+  // The next n releases strictly after `now`.
+  function upcoming(now, n) {
+    const p = {};
+    new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric', month: 'numeric' }).formatToParts(now).forEach(x => { p[x.type] = x.value; });
+    let y = +p.year, m = +p.month - 1; const out = [];
+    while (out.length < n) { const r = release(y, m); if (r.at > now) out.push(r); m++; if (m > 11) { m = 0; y++; } }
+    return out;
+  }
+  function previous(now) {
+    const n = upcoming(now, 1)[0]; let y = n.y, m = n.m - 1; if (m < 0) { m = 11; y--; }
+    return release(y, m);
+  }
+  function isoWeek(y, m, d) {
+    const t = new Date(Date.UTC(y, m, d)); const day = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - day);
+    const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    return Math.ceil(((t - y0) / 86400000 + 1) / 7);
+  }
+  const zoneName = (date) => tzOffset(TZ, date) === 120 ? 'CEST' : 'CET';
+  const fmt = (opts, tz) => new Intl.DateTimeFormat('en-GB', { timeZone: tz, ...opts });
+  const longDate = (r) => fmt({ weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }, 'UTC').format(new Date(Date.UTC(r.y, r.m, r.d)));
+  const shortDate = (r) => fmt({ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }, 'UTC').format(new Date(Date.UTC(r.y, r.m, r.d))).replace(/,/g, '');
+  const osloDay = (date) => fmt({ year: 'numeric', month: '2-digit', day: '2-digit' }, TZ).format(date);
+  const localTz = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'local'; } catch (e) { return 'local'; } })();
+
+  let list = [], next = null, prev = null, firstDraw = true;
+
+  function rebuild(now) {
+    list = upcoming(now, COUNT); next = list[0]; prev = previous(now);
+    const tb = $('list'); tb.textContent = '';
+    list.forEach((r, i) => {
+      const tr = document.createElement('tr'); if (i === 0) tr.className = 'next';
+      const days = Math.ceil((Date.UTC(r.y, r.m, r.d) - Date.UTC(...todayParts(now))) / 86400000);
+      [[String(i + 1), 'r'], [shortDate(r)], [`19:00 ${zoneName(r.at)}`], [String(isoWeek(r.y, r.m, r.d)), 'r'], [days === 0 ? 'today' : String(days), 'r']].forEach(([txt, cls]) => {
+        const td = document.createElement('td'); td.textContent = txt; if (cls) td.className = cls; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    $('list-status').textContent = `${list.length} object(s)`;
+    $('list-range').textContent = `${shortDate(list[0])} – ${shortDate(list[list.length - 1])}`;
+
+    $('f-date').textContent = longDate(next);
+    $('f-oslo').textContent = `19:00 ${zoneName(next.at)} (UTC+${tzOffset(TZ, next.at) / 60})`;
+    $('f-utc').textContent = fmt({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }, 'UTC').format(next.at) + ' UTC';
+    $('f-local').textContent = fmt({ weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }, localTz).format(next.at).replace(/,/g, '') + ` (${localTz.replace(/_/g, ' ')})`;
+    $('f-week').textContent = `Week ${isoWeek(next.y, next.m, next.d)}, ${next.y}`;
+    $('prog-from').textContent = `Last release: ${shortDate(prev)}, 19:00`;
+  }
+  function todayParts(now) {
+    const p = {}; fmt({ year: 'numeric', month: 'numeric', day: 'numeric' }, TZ).formatToParts(now).forEach(x => { p[x.type] = x.value; });
+    return [+p.year, +p.month - 1, +p.day];
+  }
+
+  function showDialog(html) {
+    const t = $('dlg-text'); t.textContent = '';
+    html.forEach((line, i) => { if (i) t.appendChild(document.createElement('br')); t.appendChild(document.createTextNode(line)); });
+    $('dialog').hidden = false; $('dlg-ok').focus();
+  }
+  const hideDialog = () => { $('dialog').hidden = true; };
+  $('dlg-ok').addEventListener('click', hideDialog);
+  $('dlg-x').addEventListener('click', hideDialog);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { hideDialog(); toggleStart(false); } });
+
+  function tick() {
+    const now = new Date();
+    if (!next || now >= next.at) {
+      const passed = next && !firstDraw ? next : null;
+      rebuild(now);
+      if (passed) {
+        showDialog([`The ${fmt({ month: 'long' }, 'UTC').format(new Date(Date.UTC(passed.y, passed.m, 1)))} security updates are out.`, `Counting down to ${longDate(next)}, 19:00.`]);
+        const c = $('count'); c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash');
+      }
+      firstDraw = false;
+    }
+    let ms = Math.max(0, next.at - now);
+    const d = Math.floor(ms / 86400000); ms -= d * 86400000;
+    const h = Math.floor(ms / 3600000); ms -= h * 3600000;
+    const m = Math.floor(ms / 60000); ms -= m * 60000;
+    const s = Math.floor(ms / 1000);
+    $('d').textContent = d; $('h').textContent = pad(h); $('m').textContent = pad(m); $('s').textContent = pad(s);
+
+    const span = next.at - prev.at, done = Math.min(1, Math.max(0, (now - prev.at) / span));
+    $('prog-fill').style.width = (done * 100).toFixed(2) + '%';
+    $('prog').setAttribute('aria-valuenow', Math.round(done * 100));
+    $('prog-pct').textContent = `${Math.floor(done * 100)}% of the cycle`;
+
+    const isToday = osloDay(now) === osloDay(next.at);
+    $('today-banner').classList.toggle('on', isToday);
+    if (isToday) $('today-text').textContent = `Today is Patch Tuesday. The updates arrive at 19:00 Norwegian time, in ${h ? h + ' h ' : ''}${m} min.`;
+    $('status').textContent = isToday ? 'Release day' : `Next release in ${d} day${d === 1 ? '' : 's'}`;
+    $('task-text').textContent = d ? `${d}d ${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(h)}:${pad(m)}:${pad(s)}`;
+    $('tray').textContent = fmt({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }, TZ).format(now);
+    document.title = `${$('task-text').textContent} · Patch Tuesday Countdown`;
+  }
+
+  // copy + about + start menu
+  function copyNext(btn) {
+    const text = `Patch Tuesday: ${longDate(next)}, 19:00 Norwegian time (${fmt({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }, 'UTC').format(next.at)} UTC)`;
+    const done = () => { if (btn) { const o = btn.innerHTML; btn.textContent = 'Copied'; setTimeout(() => { btn.innerHTML = o; }, 1500); } };
+    try { navigator.clipboard.writeText(text).then(done, () => showDialog(['Copy this:', text])); } catch (e) { showDialog(['Copy this:', text]); }
+  }
+  const about = () => showDialog(['Patch Tuesday is the second Tuesday of each month, when Microsoft releases security updates for Windows, Office and other products.',
+    'Microsoft publishes them at 10:00 Pacific time. That is normally 19:00 in Norway; in March, when the US has moved to summer time and Europe has not, it lands at 18:00.']);
+  $('copy-btn').addEventListener('click', (e) => copyNext(e.currentTarget));
+  $('about-btn').addEventListener('click', about);
+  function toggleStart(open) {
+    const m = $('startmenu'), b = $('start');
+    const o = open === undefined ? m.hidden : open;
+    m.hidden = !o; b.setAttribute('aria-expanded', String(o));
+  }
+  $('start').addEventListener('click', (e) => { e.stopPropagation(); toggleStart(); });
+  document.addEventListener('click', (e) => { if (!e.target.closest('#startmenu')) toggleStart(false); });
+  $('sm-copy').addEventListener('click', () => { toggleStart(false); copyNext(); });
+  $('sm-about').addEventListener('click', () => { toggleStart(false); about(); });
+  // clicking a window makes it the active one, as on the desktop
+  ['w-count', 'w-list'].forEach(id => $(id).addEventListener('mousedown', () => {
+    ['w-count', 'w-list'].forEach(o => $(o).classList.toggle('inactive', o !== id));
+  }));
+
+  tick();
+  setInterval(tick, 250);
+})();
+</script>
+
+</body>
+</html>
