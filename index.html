@@ -136,6 +136,11 @@ tbody tr.next td .dim { color: #c8c8ff; }
 .dim { color: #606060; }
 .note { margin: 0; color: #404040; line-height: 1.45; max-width: 62ch; }
 .note a { color: var(--select); }
+/* Easter egg: a click in the list window shows a GIF over its contents for 5 seconds */
+#w-list .body { position: relative; }
+.rick { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; background: #000; box-shadow: var(--sunken); overflow: hidden; cursor: default; }
+.rick img { display: block; max-width: 100%; max-height: 100%; width: auto; height: 100%; object-fit: contain; }
+.rick .fallback { color: #fff; font-weight: bold; text-align: center; padding: 16px; }
 
 /* ---------- icons (drawn with CSS) ---------- */
 .i-clock { width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1px #000; position: relative; display: inline-block; }
@@ -254,6 +259,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
         </table>
       </div>
       <p class="note">All releases at 19:00 Norwegian time. CET is winter time (UTC+1), CEST summer time (UTC+2). The list moves on by itself after each release.</p>
+      <div class="rick" id="rick" hidden aria-live="polite"><img id="rick-img" alt="Rick Astley dancing. You have been rickrolled." decoding="async"><div class="fallback" id="rick-fallback" hidden>You have been rickrolled.</div></div>
     </div>
     <div class="statusbar"><div id="list-status">12 object(s)</div><div class="hide-narrow" id="list-range">–</div></div>
   </section>
@@ -451,6 +457,22 @@ tbody tr.next td .dim { color: #c8c8ff; }
   document.addEventListener('click', (e) => { if (!e.target.closest('#startmenu')) toggleStart(false); });
   $('sm-copy').addEventListener('click', () => { toggleStart(false); copyNext(); });
   $('sm-about').addEventListener('click', () => { toggleStart(false); about(); });
+  // Easter egg: a click anywhere in the list window (except its title-bar and menu buttons,
+  // which have their own messages) shows a rickroll GIF inside the window for 5 seconds.
+  const RICK_GIF = 'https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif';
+  let rickTimer = null;
+  const rickImg = $('rick-img');
+  rickImg.addEventListener('error', () => { rickImg.hidden = true; $('rick-fallback').hidden = false; });
+  // fetch the GIF once the pointer gets near the window, so it is ready on the first click
+  $('w-list').addEventListener('pointerenter', () => { if (!rickImg.src) rickImg.src = RICK_GIF; }, { once: true });
+  $('w-list').addEventListener('click', (e) => {
+    if (e.target.closest('button, a')) return;
+    if (!rickImg.src) rickImg.src = RICK_GIF;
+    $('rick').hidden = false;
+    clearTimeout(rickTimer);
+    rickTimer = setTimeout(() => { $('rick').hidden = true; }, 5000);
+  });
+
   // clicking a window makes it the active one, as on the desktop
   ['w-count', 'w-list'].forEach(id => $(id).addEventListener('mousedown', () => {
     ['w-count', 'w-list'].forEach(o => $(o).classList.toggle('inactive', o !== id));
