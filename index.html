@@ -160,7 +160,8 @@ tbody tr.next td .dim { color: #c8c8ff; }
 .start[aria-expanded="true"] { box-shadow: var(--pressed); }
 .task { flex: 1 1 auto; min-width: 0; max-width: 220px; display: flex; align-items: center; gap: 5px; padding: 3px 6px; box-shadow: var(--pressed); background: repeating-conic-gradient(var(--face) 0 25%, var(--hilite) 0 50%) 0 0 / 2px 2px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .task span { overflow: hidden; text-overflow: ellipsis; }
-.tray { margin-left: auto; box-shadow: var(--pressed); padding: 4px 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tray { margin-left: auto; box-shadow: var(--pressed); padding: 4px 8px; white-space: nowrap; font: 12px var(--ui); font-variant-numeric: tabular-nums; color: var(--ink); background: var(--face); border: 0; cursor: default; }
+.tray:focus-visible { outline: 1px dotted var(--ink); outline-offset: -4px; }
 .startmenu {
   position: fixed; left: max(4px, env(safe-area-inset-left, 0px)); bottom: calc(34px + env(safe-area-inset-bottom, 0px)); z-index: 30;
   background: var(--face); box-shadow: var(--raised); padding: 3px; display: flex; min-width: 230px;
@@ -273,7 +274,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
 <nav class="taskbar" aria-label="Taskbar">
   <button class="btn start" id="start" type="button" aria-expanded="false" aria-controls="startmenu"><span class="i-clock" aria-hidden="true"></span>Start</button>
   <div class="task" title="Patch Tuesday Countdown"><span class="i-clock" aria-hidden="true"></span><span id="task-text">Patch Tuesday</span></div>
-  <div class="tray" id="tray" title="Norwegian time">--:--</div>
+  <button class="tray" id="tray" type="button" title="Norwegian time">--:--</button>
 </nav>
 
 <!-- ======== dialog ======== -->
@@ -387,6 +388,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
     max: ['Maximize', 'Hey, DO NOT make this an even bigger problem than it already is!'],
     close: ['Close', 'No no, you can\'t get rid of the problem that easily, sorry!']
   };
+  $('tray').addEventListener('click', () => showDialog(['What is time anyway? Patches should be installed *NOW*, not later.'], 'Date/Time'));
   document.querySelectorAll('[data-tb]').forEach(b => b.addEventListener('click', () => {
     const [title, msg] = TB[b.dataset.tb]; showDialog([msg], title);
   }));
