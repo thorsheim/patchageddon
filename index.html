@@ -78,6 +78,7 @@ body {
   font: bold 9px/1 var(--ui); color: var(--ink); display: grid; place-items: center; cursor: default;
 }
 .tb-btn:active { box-shadow: var(--pressed); }
+.tb-btn:focus-visible { outline: 1px dotted var(--ink); outline-offset: -3px; }
 .tb-btn + .tb-btn.x { margin-left: 2px; }
 .menubar { display: flex; gap: 2px; padding: 2px 0 3px; }
 .menubar button { padding: 2px 6px; border: 0; background: none; font: 12px var(--ui); color: var(--ink); cursor: default; }
@@ -194,7 +195,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
     <div class="titlebar">
       <span class="i-clock ico" aria-hidden="true"></span>
       <span class="ttl" id="t-count">Patch Tuesday Countdown</span>
-      <span class="tb-btns" aria-hidden="true"><span class="tb-btn">_</span><span class="tb-btn">□</span><span class="tb-btn x">×</span></span>
+      <span class="tb-btns"><button type="button" class="tb-btn" data-tb="min" aria-label="Minimize">_</button><button type="button" class="tb-btn" data-tb="max" aria-label="Maximize">□</button><button type="button" class="tb-btn x" data-tb="close" aria-label="Close">×</button></span>
     </div>
     <div class="menubar" role="menubar"><button type="button" data-menu="file"><u>F</u>ile</button><button type="button" data-menu="edit"><u>E</u>dit</button><button type="button" class="view" data-view><u>V</u>iew</button><button type="button" data-menu="help"><u>H</u>elp</button></div>
     <div class="body">
@@ -241,7 +242,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
     <div class="titlebar">
       <span class="i-cal ico" aria-hidden="true"></span>
       <span class="ttl" id="t-list">Upcoming Patch Tuesdays</span>
-      <span class="tb-btns" aria-hidden="true"><span class="tb-btn">_</span><span class="tb-btn">□</span><span class="tb-btn x">×</span></span>
+      <span class="tb-btns"><button type="button" class="tb-btn" data-tb="min" aria-label="Minimize">_</button><button type="button" class="tb-btn" data-tb="max" aria-label="Maximize">□</button><button type="button" class="tb-btn x" data-tb="close" aria-label="Close">×</button></span>
     </div>
     <div class="menubar" role="menubar"><button type="button" data-menu="file"><u>F</u>ile</button><button type="button" class="view" data-view><u>V</u>iew</button><button type="button" data-menu="help"><u>H</u>elp</button></div>
     <div class="body">
@@ -380,6 +381,14 @@ tbody tr.next td .dim { color: #c8c8ff; }
     $('w-count').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     clearTimeout(zoomTimer);
     zoomTimer = setTimeout(() => { c.classList.remove('zoom'); document.querySelectorAll('.menubar [data-view]').forEach(v => v.classList.remove('open')); }, 5000);
+  }));
+  const TB = {
+    min: ['Minimize', 'Trying to minimize the problem won\'t work, sorry. This is for real.'],
+    max: ['Maximize', 'Hey, DO NOT make this an even bigger problem than it already is!'],
+    close: ['Close', 'No no, you can\'t get rid of the problem that easily, sorry!']
+  };
+  document.querySelectorAll('[data-tb]').forEach(b => b.addEventListener('click', () => {
+    const [title, msg] = TB[b.dataset.tb]; showDialog([msg], title);
   }));
   document.querySelectorAll('.menubar [data-menu]').forEach(b => b.addEventListener('click', () => {
     const [title, msg] = MENU[b.dataset.menu];
