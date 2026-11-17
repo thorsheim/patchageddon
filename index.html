@@ -10,6 +10,15 @@
 <meta property="og:url" content="https://patchageddon.thorsheim.net/">
 <link rel="canonical" href="https://patchageddon.thorsheim.net/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23008080'/%3E%3Ccircle cx='8' cy='8' r='6' fill='%23fff' stroke='%23000'/%3E%3Cpath d='M8 4v4h3' stroke='%23000' stroke-width='1.5' fill='none'/%3E%3C/svg%3E">
+<script>
+/* Pick the look before first paint: ?theme=win31 / ?theme=win95 in the address, else the saved choice, else Windows 95. */
+(function () {
+  var t = 'win95';
+  try { t = new URLSearchParams(location.search).get('theme') || localStorage.getItem('patchageddon-theme') || t; } catch (e) {}
+  if (t !== 'win31' && t !== 'win95') t = 'win95';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 *, *::before, *::after { box-sizing: border-box; }
@@ -193,6 +202,71 @@ tbody tr.next td .dim { color: #c8c8ff; }
   .hide-narrow { display: none; }
 
 }
+
+/* ---------- look and feel switch ---------- */
+.only31 { display: none; }
+.themes { display: flex; gap: 6px 22px; flex-wrap: wrap; }
+.themes label { display: inline-flex; align-items: center; gap: 6px; cursor: default; }
+.themes input { appearance: none; -webkit-appearance: none; margin: 0; width: 13px; height: 13px; flex: none; border-radius: 50%; background: var(--hilite); box-shadow: var(--sunken); display: grid; place-items: center; }
+.themes input:checked::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--ink); }
+.themes input:focus-visible { outline: 1px dotted var(--ink); outline-offset: 2px; }
+
+/* ---------- Windows 3.11 theme: grey desktop, black-outlined frames, white client areas, control-menu box
+   on the left of each title bar, up/down arrow buttons on the right, and no taskbar: the Program Manager
+   and the countdown sit as icons along the bottom of the desktop, with the clock as a small window. ---------- */
+html[data-theme="win31"] {
+  --desktop: #808080; --face: #c0c0c0; --hilite: #ffffff; --light: #c0c0c0; --shadow: #808080; --dark: #000000;
+  --title: #000080; --title-off: #ffffff; --select: #000080; --tip: #ffffc0;
+  --ui: Arial, "Liberation Sans", Helvetica, sans-serif;
+  --raised: inset 0 0 0 1px #000, inset 2px 2px 0 #fff, inset -2px -2px 0 #808080;
+  --sunken: inset 0 0 0 1px #000;
+  --pressed: inset 0 0 0 1px #000, inset 2px 2px 0 #808080;
+}
+html[data-theme="win31"] .only31 { display: inline-block; }
+html[data-theme="win31"] .only95 { display: none !important; }
+html[data-theme="win31"] .desktop { padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+html[data-theme="win31"] .win { padding: 4px; box-shadow: 0 0 0 1px #000, inset 0 0 0 1px #fff; }
+html[data-theme="win31"] .titlebar { height: 20px; padding: 0; gap: 0; border: 1px solid #000; }
+html[data-theme="win31"] .win.inactive .titlebar { color: #000; }
+html[data-theme="win31"] .titlebar .ico { display: none; }
+html[data-theme="win31"] .titlebar .ttl { text-align: center; padding: 0 6px; line-height: 18px; }
+html[data-theme="win31"] .tb-btns { display: contents; }
+html[data-theme="win31"] .tb-btns .tb-btn { width: 18px; height: 18px; margin: 0; font-size: 0; order: 1; }
+html[data-theme="win31"] .tb-btns .tb-btn.x { order: -1; }
+html[data-theme="win31"] .tb-btn::before { content: ""; display: block; }
+html[data-theme="win31"] .tb-btn[data-tb="min"]::before { border: 4px solid transparent; border-top: 5px solid #000; border-bottom: 0; }
+html[data-theme="win31"] .tb-btn[data-tb="max"]::before { border: 4px solid transparent; border-bottom: 5px solid #000; border-top: 0; }
+html[data-theme="win31"] .tb-btn.x::before { width: 10px; height: 4px; background: #c0c0c0; box-shadow: 0 0 0 1px #000, inset 1px 1px 0 #fff; }
+html[data-theme="win31"] .menubar { background: #fff; border: 1px solid #000; border-top: 0; padding: 0; gap: 0; }
+html[data-theme="win31"] .menubar button { padding: 3px 9px; }
+html[data-theme="win31"] .body { background: #fff; border: 1px solid #000; border-top: 0; padding: 10px 8px 8px; }
+html[data-theme="win31"] .statusbar { margin-top: 4px; gap: 4px; }
+html[data-theme="win31"] .statusbar > div { background: #c0c0c0; padding: 2px 6px; }
+html[data-theme="win31"] fieldset { box-shadow: inset 0 0 0 1px #000; }
+html[data-theme="win31"] legend { background: #fff; }
+html[data-theme="win31"] .progress { background: #fff; }
+html[data-theme="win31"] .progress .fill { background: var(--select); }
+html[data-theme="win31"] .btn { font-weight: bold; }
+html[data-theme="win31"] .btn:active { padding: 5px 12px; }
+html[data-theme="win31"] th { font-weight: bold; }
+html[data-theme="win31"] .i-info { box-shadow: inset 0 0 0 2px #000080; }
+html[data-theme="win31"] .dialog .msg { background: #fff; border: 1px solid #000; margin-top: 4px; }
+html[data-theme="win31"] .dialog .btn-row { padding-top: 6px; }
+
+html[data-theme="win31"] .taskbar { background: transparent; box-shadow: none; align-items: flex-end; gap: 26px; padding-block: 8px calc(8px + env(safe-area-inset-bottom, 0px)); padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+html[data-theme="win31"] .start, html[data-theme="win31"] .task { flex: none; flex-direction: column; justify-content: flex-start; gap: 3px; width: auto; min-width: 0; max-width: 110px; padding: 0; background: none; box-shadow: none; color: #fff; text-align: center; font-weight: bold; text-overflow: clip; }
+html[data-theme="win31"] .start:active { padding: 0; box-shadow: none; }
+html[data-theme="win31"] .start[aria-expanded="true"] { box-shadow: none; }
+html[data-theme="win31"] .start[aria-expanded="true"] .lab { background: #000080; }
+html[data-theme="win31"] .start:focus-visible .lab { outline: 1px dotted #fff; }
+html[data-theme="win31"] .lab { padding: 1px 3px; line-height: 1.15; white-space: normal; }
+html[data-theme="win31"] .task span.lab { white-space: nowrap; }
+html[data-theme="win31"] .tray { background: #fff; box-shadow: 0 0 0 1px #000; padding: 4px 10px; margin-left: auto; font-weight: bold; font-size: 14px; }
+html[data-theme="win31"] .startmenu { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); background: #fff; box-shadow: 0 0 0 1px #000, 3px 3px 0 #000; padding: 2px; min-width: 210px; }
+html[data-theme="win31"] .startmenu .side { display: none; }
+html[data-theme="win31"] .startmenu li > * { padding: 5px 12px; }
+html[data-theme="win31"] .startmenu hr { height: 0; border-top: 1px solid #000; box-shadow: none; margin: 2px 0; }
+.ico31 { width: 32px; height: 32px; flex: none; }
 </style>
 
 <div class="desktop">
@@ -235,6 +309,14 @@ tbody tr.next td .dim { color: #c8c8ff; }
 
       <p class="note">Microsoft publishes its monthly security updates on the second Tuesday of every month. This page counts down to 19:00 Norwegian time on that day and switches to the following month the moment the clock reaches zero. Details appear in the <a href="https://msrc.microsoft.com/update-guide" target="_blank" rel="noopener">Security Update Guide</a>.</p>
 
+      <fieldset>
+        <legend>Look and feel</legend>
+        <div class="themes" role="radiogroup" aria-label="Look and feel">
+          <label><input type="radio" name="theme" value="win95"> Windows 95</label>
+          <label><input type="radio" name="theme" value="win31"> Windows 3.11</label>
+        </div>
+      </fieldset>
+
       <div class="btn-row">
         <button class="btn" id="copy-btn" type="button"><u>C</u>opy date</button>
         <button class="btn" id="about-btn" type="button"><u>A</u>bout…</button>
@@ -271,6 +353,7 @@ tbody tr.next td .dim { color: #c8c8ff; }
   <ul>
     <li><a href="https://msrc.microsoft.com/update-guide" target="_blank" rel="noopener"><span class="i-cal" aria-hidden="true"></span>Security Update Guide</a></li>
     <li><button type="button" id="sm-copy"><span class="i-clock" aria-hidden="true"></span>Copy next date</button></li>
+    <li><button type="button" id="sm-theme"><span class="i-clock" aria-hidden="true"></span><span id="sm-theme-text">Switch to Windows 3.11</span></button></li>
     <li><hr></li>
     <li><button type="button" id="sm-about"><span class="i-info" aria-hidden="true" style="width:16px;height:16px;font-size:11px;line-height:16px;box-shadow:inset 0 0 0 1px #000080">i</span>About Patch Tuesday</button></li>
   </ul>
@@ -278,8 +361,18 @@ tbody tr.next td .dim { color: #c8c8ff; }
 
 <!-- ======== taskbar ======== -->
 <nav class="taskbar" aria-label="Taskbar">
-  <button class="btn start" id="start" type="button" aria-expanded="false" aria-controls="startmenu"><span class="i-clock" aria-hidden="true"></span>Start</button>
-  <div class="task" title="Patch Tuesday Countdown"><span class="i-clock" aria-hidden="true"></span><span id="task-text">Patch Tuesday</span></div>
+  <button class="btn start" id="start" type="button" aria-expanded="false" aria-controls="startmenu">
+    <span class="i-clock only95" aria-hidden="true"></span>
+    <!-- Program Manager icon -->
+    <svg class="ico31 only31" viewBox="0 0 32 32" aria-hidden="true"><rect x="2.5" y="4.5" width="27" height="23" fill="#fff" stroke="#000"/><rect x="3" y="5" width="26" height="4" fill="#000080"/><rect x="4" y="11" width="10" height="7" fill="#c0c0c0" stroke="#000"/><rect x="17" y="11" width="10" height="7" fill="#ff0" stroke="#000"/><rect x="4" y="20" width="10" height="6" fill="#0ff" stroke="#000"/><rect x="17" y="20" width="10" height="6" fill="#f0f" stroke="#000"/></svg>
+    <span class="lab"><span class="only95">Start</span><span class="only31">Program Manager</span></span>
+  </button>
+  <div class="task" title="Patch Tuesday Countdown">
+    <span class="i-clock only95" aria-hidden="true"></span>
+    <!-- Clock icon -->
+    <svg class="ico31 only31" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13.5" fill="#fff" stroke="#000" stroke-width="2"/><g stroke="#000" stroke-width="2"><path d="M16 4v3M16 25v3M4 16h3M25 16h3"/></g><path d="M16 16V9M16 16l5 3" stroke="#000080" stroke-width="2" fill="none"/><circle cx="16" cy="16" r="1.6" fill="#f00"/></svg>
+    <span class="lab" id="task-text">Patch Tuesday</span>
+  </div>
   <button class="tray" id="tray" type="button" title="Norwegian time">--:--</button>
 </nav>
 
@@ -457,6 +550,17 @@ tbody tr.next td .dim { color: #c8c8ff; }
   document.addEventListener('click', (e) => { if (!e.target.closest('#startmenu')) toggleStart(false); });
   $('sm-copy').addEventListener('click', () => { toggleStart(false); copyNext(); });
   $('sm-about').addEventListener('click', () => { toggleStart(false); about(); });
+  // look and feel: Windows 95 or Windows 3.11 (the attribute is already set by the script in <head>)
+  function setTheme(t, save) {
+    document.documentElement.setAttribute('data-theme', t);
+    document.querySelectorAll('input[name="theme"]').forEach(r => { r.checked = r.value === t; });
+    $('sm-theme-text').textContent = t === 'win31' ? 'Switch to Windows 95' : 'Switch to Windows 3.11';
+    if (save) { try { localStorage.setItem('patchageddon-theme', t); } catch (e) {} }
+  }
+  const curTheme = () => document.documentElement.getAttribute('data-theme');
+  setTheme(curTheme(), false);
+  document.querySelectorAll('input[name="theme"]').forEach(r => r.addEventListener('change', () => setTheme(r.value, true)));
+  $('sm-theme').addEventListener('click', () => { toggleStart(false); setTheme(curTheme() === 'win31' ? 'win95' : 'win31', true); });
   // Easter egg: a click anywhere in the list window (except its title-bar and menu buttons,
   // which have their own messages) shows a rickroll GIF inside the window for 5 seconds.
   const RICK_GIF = 'https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif';
